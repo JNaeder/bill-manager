@@ -5,12 +5,14 @@ import {
   Select,
   MenuItem,
   FormLabel,
-  TextField,
   Button,
 } from "@mui/material";
 import { useState } from "react";
 import { Months } from "../helperStuff";
 import axios from "axios";
+import GasBillModalInputRow from "./GasBillModalInputRow";
+import { gasBill } from "../types";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 export default function GasBillModal({
   modalOpen,
@@ -21,25 +23,47 @@ export default function GasBillModal({
 }) {
   const [month, setMonth] = useState(1);
   const [year, setYear] = useState(2025);
-  const [therms, setTherms] = useState(0);
-  const [distCost, setDistCost] = useState(0);
-  const [adjCost, setAdjCost] = useState(0);
-  const [gasCost, setGasCost] = useState(0);
-  const [serviceFee, setServiceFee] = useState(0);
+  const [thermRows, setThermRows] = useState<gasBill[]>([]);
+
+  const addThermRow = () => {
+    setThermRows([
+      ...thermRows,
+      {
+        id: thermRows.length,
+        month,
+        year,
+        therms: 0,
+        dist_cost: 0,
+        adj_cost: 0,
+        gas_cost: 0,
+        service_fee: 0,
+      },
+    ]);
+  };
+
+  const handleChange = (id: number, field: keyof gasBill, value: any) => {
+    setThermRows(
+      thermRows.map((row) => (row.id === id ? { ...row, [field]: value } : row))
+    );
+  };
 
   const onSubmit = async () => {
-    const gasData = {
-      month,
-      year,
-      therms,
-      dist_cost: distCost,
-      adj_cost: adjCost,
-      gas_cost: gasCost,
-      service_fee: serviceFee,
-    };
-    const response = await axios.post("http://localhost:8000/gas", gasData);
-    console.log(response);
-    handleClose();
+    for (let i = 0; i < thermRows.length; i++) {
+      const gasData = {
+        month,
+        year,
+        therms: thermRows[i].therms,
+        dist_cost: thermRows[i].dist_cost,
+        adj_cost: thermRows[i].adj_cost,
+        gas_cost: thermRows[i].gas_cost,
+        service_fee: thermRows[i].service_fee,
+      };
+
+      console.log(gasData);
+      const response = await axios.post("http://localhost:8000/gas", gasData);
+      console.log(response);
+    }
+    //   handleClose();
   };
 
   return (
@@ -47,7 +71,7 @@ export default function GasBillModal({
       <Modal open={modalOpen} onClose={handleClose}>
         <Box
           sx={{
-            // width: "50%",
+            width: "80%",
             padding: "50px",
             backgroundColor: "white",
             borderRadius: 2,
@@ -94,86 +118,27 @@ export default function GasBillModal({
               </Select>
             </Box>
           </Box>
-          {/* Therms */}
           <Box
             sx={{
               display: "flex",
-              gap: 2,
-              marginTop: 2,
+              justifyContent: "space-between",
               alignItems: "center",
             }}
           >
-            <FormLabel sx={{ marginRight: "10px" }}>Therms</FormLabel>
-            <TextField
-              type="number"
-              value={therms}
-              onChange={(e) => setTherms(Number(e.target.value))}
-            />
+            <Typography variant="h6">Therms</Typography>
+            <Button onClick={addThermRow}>
+              <AddCircleOutlineIcon />
+            </Button>
           </Box>
-          {/* Dist Charges */}
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              marginTop: 2,
-              alignItems: "center",
-            }}
-          >
-            <FormLabel sx={{ marginRight: "10px" }}>Dist Cost</FormLabel>
-            <TextField
-              type="number"
-              value={distCost}
-              onChange={(e) => setDistCost(Number(e.target.value))}
-            />
-          </Box>
-          {/* Adj Cost */}
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              marginTop: 2,
-              alignItems: "center",
-            }}
-          >
-            <FormLabel sx={{ marginRight: "10px" }}>Adj Cost</FormLabel>
-            <TextField
-              type="number"
-              value={adjCost}
-              onChange={(e) => setAdjCost(Number(e.target.value))}
-            />
-          </Box>
-          {/* Gas Cost */}
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              marginTop: 2,
-              alignItems: "center",
-            }}
-          >
-            <FormLabel sx={{ marginRight: "10px" }}>Gas Cost</FormLabel>
-            <TextField
-              type="number"
-              value={gasCost}
-              onChange={(e) => setGasCost(Number(e.target.value))}
-            />
-          </Box>
-          {/* Service Fee*/}
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              marginTop: 2,
-              alignItems: "center",
-            }}
-          >
-            <FormLabel sx={{ marginRight: "10px" }}>Service Fee</FormLabel>
-            <TextField
-              type="number"
-              value={serviceFee}
-              onChange={(e) => setServiceFee(Number(e.target.value))}
-            />
-          </Box>
+          {thermRows.map((data, index) => {
+            return (
+              <GasBillModalInputRow
+                key={index}
+                handleChange={handleChange}
+                rowId={data.id}
+              />
+            );
+          })}
           <Button variant="contained" onClick={onSubmit} sx={{ marginTop: 2 }}>
             Submit
           </Button>

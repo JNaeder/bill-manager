@@ -3,6 +3,7 @@ import axios from "axios";
 import { gasBill } from "../types";
 import { Months } from "../helperStuff";
 import { Box, Typography, Button } from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { DataGrid } from "@mui/x-data-grid";
 import GasBillModal from "./GasBillModal";
 
@@ -40,7 +41,7 @@ export default function GasBillMain() {
       headerName: "Total Cost",
       width: 150,
       valueGetter: (_: any, row: gasBill) => {
-        return (
+        return `$${
           Math.round(
             (row.dist_cost * row.therms +
               row.adj_cost * row.therms +
@@ -48,7 +49,7 @@ export default function GasBillMain() {
               row.service_fee) *
               100
           ) / 100
-        );
+        }`;
       },
     },
   ];
@@ -64,10 +65,18 @@ export default function GasBillMain() {
           alignItems: "center",
         }}
       >
-        <Typography variant="h4">Gas Bill</Typography>
-        <Button variant="outlined" onClick={handleOpen}>
-          New
-        </Button>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h4">Gas Bills</Typography>
+          <Button onClick={handleOpen}>
+            <AddCircleOutlineIcon />
+          </Button>
+        </Box>
         <DataGrid rows={gasBillInfo} columns={columns} />
         <GasBillModal modalOpen={modalOpen} handleClose={handleClose} />
       </Box>
