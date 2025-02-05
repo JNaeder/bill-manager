@@ -5,11 +5,13 @@ export default function ModalInputNumber({
   handleChange,
   rowId,
   rowName,
+  value,
 }: {
   inputLabel: string;
   handleChange: Function;
   rowId: number;
   rowName: string;
+  value: number;
 }) {
   return (
     <Box
@@ -22,7 +24,7 @@ export default function ModalInputNumber({
       <TextField
         type="number"
         sx={{ width: "100px", marginLeft: "5px" }}
-        //   value={gasCost}
+        value={value}
         onChange={(e) => handleChange(rowId, rowName, Number(e.target.value))}
       />
     </Box>

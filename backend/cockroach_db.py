@@ -19,7 +19,7 @@ class CockroachDB:
 
     def get_gas_info(self):
         with self._conn.cursor() as cur:
-            cur.execute("SELECT * FROM gas;")
+            cur.execute("SELECT * FROM gas_bills;")
             columns = [desc[0] for desc in cur.description]
             rows = cur.fetchall()
             result = [dict(zip(columns, row)) for row in rows]
@@ -27,4 +27,4 @@ class CockroachDB:
 
     def create_gas_info(self, gas_bill: GasBill):
         with self._conn.cursor() as cur:
-            cur.execute(f"INSERT INTO gas (month, year, therms, dist_cost, adj_cost, gas_cost, service_fee) VALUES ({gas_bill.month}, {gas_bill.year}, {gas_bill.therms}, {gas_bill.dist_cost}, {gas_bill.adj_cost},{gas_bill.gas_cost},{gas_bill.service_fee})")
+            cur.execute(f"INSERT INTO gas_bills (month, year, therms, dist_cost, adj_cost, gas_cost, service_fee) VALUES ({gas_bill.month}, {gas_bill.year}, {gas_bill.therms}, {gas_bill.dist_cost}, {gas_bill.adj_cost},{gas_bill.gas_cost},{gas_bill.service_fee})")

@@ -1,12 +1,15 @@
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import ModalInputNumber from "./ModalInputNumber";
+import { gasBill } from "../types";
 
 export default function GasBillModalInputRow({
+  data,
   handleChange,
-  rowId,
+  removeThermRow,
 }: {
+  data: gasBill;
   handleChange: Function;
-  rowId: number;
+  removeThermRow: Function;
 }) {
   return (
     <Box
@@ -14,37 +17,44 @@ export default function GasBillModalInputRow({
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
+        marginBottom: "10px",
       }}
     >
+      <Button onClick={() => removeThermRow(data.id)}>X-{data.id}</Button>
       <ModalInputNumber
         inputLabel="Therms"
         rowName="therms"
         handleChange={handleChange}
-        rowId={rowId}
+        rowId={data.id}
+        value={data.therms}
       />
       <ModalInputNumber
         inputLabel="Dist Cost"
         rowName="dist_cost"
         handleChange={handleChange}
-        rowId={rowId}
+        rowId={data.id}
+        value={data.dist_cost}
       />
       <ModalInputNumber
         inputLabel="Adj Cost"
         rowName="adj_cost"
         handleChange={handleChange}
-        rowId={rowId}
+        rowId={data.id}
+        value={data.adj_cost}
       />
       <ModalInputNumber
         inputLabel="Gas Cost"
         rowName="gas_cost"
         handleChange={handleChange}
-        rowId={rowId}
+        rowId={data.id}
+        value={data.gas_cost}
       />
       <ModalInputNumber
         inputLabel="Service Fee"
         rowName="service_fee"
         handleChange={handleChange}
-        rowId={rowId}
+        rowId={data.id}
+        value={data.service_fee}
       />
     </Box>
   );

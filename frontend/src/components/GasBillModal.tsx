@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Months } from "../helperStuff";
-import axios from "axios";
+// import axios from "axios";
 import GasBillModalInputRow from "./GasBillModalInputRow";
 import { gasBill } from "../types";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -24,12 +24,13 @@ export default function GasBillModal({
   const [month, setMonth] = useState(1);
   const [year, setYear] = useState(2025);
   const [thermRows, setThermRows] = useState<gasBill[]>([]);
+  const [idCounter, setIdCounter] = useState(0);
 
   const addThermRow = () => {
     setThermRows([
       ...thermRows,
       {
-        id: thermRows.length,
+        id: idCounter,
         month,
         year,
         therms: 0,
@@ -39,6 +40,12 @@ export default function GasBillModal({
         service_fee: 0,
       },
     ]);
+
+    setIdCounter(idCounter + 1);
+  };
+
+  const removeThermRow = (rowId: number) => {
+    setThermRows(thermRows.filter((row: gasBill) => row.id !== rowId));
   };
 
   const handleChange = (id: number, field: keyof gasBill, value: any) => {
@@ -60,8 +67,8 @@ export default function GasBillModal({
       };
 
       console.log(gasData);
-      const response = await axios.post("http://localhost:8000/gas", gasData);
-      console.log(response);
+      // const response = await axios.post("http://localhost:8000/gas", gasData);
+      // console.log(response);
     }
     //   handleClose();
   };
@@ -123,6 +130,7 @@ export default function GasBillModal({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              marginTop: "10px",
             }}
           >
             <Typography variant="h6">Therms</Typography>
@@ -135,7 +143,8 @@ export default function GasBillModal({
               <GasBillModalInputRow
                 key={index}
                 handleChange={handleChange}
-                rowId={data.id}
+                removeThermRow={removeThermRow}
+                data={data}
               />
             );
           })}
