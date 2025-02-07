@@ -2,15 +2,13 @@ export type gasBill = {
   id: number;
   month: number;
   year: number;
-  therms: number;
   dist_cost: number;
   adj_cost: number;
-  gas_cost: number;
   service_fee: number;
 };
 
 export type gasBillInfo = {
-  id: number;
+  id: string;
   month: number;
   year: number;
   total_therms: number;
@@ -18,8 +16,8 @@ export type gasBillInfo = {
 };
 
 export type thermRow = {
-  id: number;
-  bill_id: number;
+  id: string;
+  bill_id: string;
   therms: number;
   gas_cost: number;
 };

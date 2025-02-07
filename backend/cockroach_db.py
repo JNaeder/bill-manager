@@ -43,6 +43,24 @@ class CockroachDB:
             result = [dict(zip(columns, row)) for row in rows]
             return result
 
+    def get_gas_bill_one(self, bill_id:str):
+        with self._conn.cursor() as cur:
+            sql = f"SELECT * FROM gas_bills WHERE gas_bills.id='{bill_id}'"
+            cur.execute(sql)
+            columns = [desc[0] for desc in cur.description]
+            rows = cur.fetchall()
+            result = [dict(zip(columns, row)) for row in rows]
+            return result
+
+    def get_all_therm_rows_by_bill_id(self, bill_id: str):
+        with self._conn.cursor() as cur:
+            sql = f"SELECT * FROM gas_therms WHERE gas_therms.bill_id='{bill_id}'"
+            cur.execute(sql)
+            columns = [desc[0] for desc in cur.description]
+            rows = cur.fetchall()
+            result = [dict(zip(columns, row)) for row in rows]
+            return result
+
     def create_gas_bill(self, gas_bill: GasBill):
         sql = f"""
         INSERT INTO

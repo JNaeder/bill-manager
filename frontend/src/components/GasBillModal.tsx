@@ -8,18 +8,21 @@ import {
   Button,
   TextField,
 } from "@mui/material";
-import { useState } from "react";
-import { Months } from "../helperStuff";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import GasBillModalInputRow from "./GasBillModalInputRow";
-import { thermRow } from "../types";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { gasBill, thermRow } from "../types";
+import { Months } from "../helperStuff";
+
 export default function GasBillModal({
   modalOpen,
   handleClose,
+  currentBillId,
 }: {
   modalOpen: boolean;
   handleClose: () => void;
+  currentBillId: string | null;
 }) {
   const [month, setMonth] = useState(1);
   const [year, setYear] = useState(2025);
@@ -29,12 +32,37 @@ export default function GasBillModal({
   const [thermRows, setThermRows] = useState<thermRow[]>([]);
   const [idCounter, setIdCounter] = useState(0);
 
+  useEffect(() => {
+    const getBillInfo = async () => {
+      console.log(currentBillId);
+      if (currentBillId === null) {
+        setMonth(1);
+        setYear(2025);
+        setDistCost(0);
+        setAdjCost(0);
+        setServiceFee(0);
+        return;
+      }
+      const response = await axios.get(
+        `http://localhost:8000/gas-bill-one?bill_id=${currentBillId}`
+      );
+      const data: gasBill = response.data[0];
+      setMonth(data.month);
+      setYear(data.year);
+      setDistCost(data.dist_cost);
+      setAdjCost(data.adj_cost);
+      setServiceFee(data.service_fee);
+    };
+
+    getBillInfo();
+  }, [currentBillId]);
+
   const addThermRow = () => {
     setThermRows([
       ...thermRows,
       {
-        id: idCounter,
-        bill_id: 0,
+        id: crypto.randomUUID(),
+        bill_id: "0",
         therms: 0,
         gas_cost: 0,
       },
@@ -43,11 +71,11 @@ export default function GasBillModal({
     setIdCounter(idCounter + 1);
   };
 
-  const removeThermRow = (rowId: number) => {
+  const removeThermRow = (rowId: string) => {
     setThermRows(thermRows.filter((row: thermRow) => row.id !== rowId));
   };
 
-  const handleChange = (id: number, field: keyof thermRow, value: any) => {
+  const handleChange = (id: string, field: keyof thermRow, value: any) => {
     setThermRows(
       thermRows.map((row) => (row.id === id ? { ...row, [field]: value } : row))
     );

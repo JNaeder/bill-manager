@@ -10,7 +10,12 @@ import GasBillModal from "./GasBillModal";
 export default function GasBillMain() {
   const [gasBillInfo, setGasBillInfo] = useState<gasBillInfo[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const handleOpen = () => setModalOpen(true);
+  const [currentBillId, setCurrentBillId] = useState<string | null>(null);
+
+  const handleOpen = () => {
+    setCurrentBillId(null);
+    setModalOpen(true);
+  };
   const handleClose = () => setModalOpen(false);
 
   useEffect(() => {
@@ -55,7 +60,10 @@ export default function GasBillMain() {
         return (
           <Button
             variant="contained"
-            onClick={() => console.log(params.row.id)}
+            onClick={() => {
+              setCurrentBillId(params.row.id);
+              setModalOpen(true);
+            }}
           >
             View
           </Button>
@@ -94,7 +102,11 @@ export default function GasBillMain() {
         >
           <DataGrid rows={gasBillInfo} columns={columns} />
         </Box>
-        <GasBillModal modalOpen={modalOpen} handleClose={handleClose} />
+        <GasBillModal
+          modalOpen={modalOpen}
+          handleClose={handleClose}
+          currentBillId={currentBillId}
+        />
       </Box>
     </>
   );
