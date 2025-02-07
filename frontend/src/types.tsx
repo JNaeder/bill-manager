@@ -8,3 +8,18 @@ export type gasBill = {
   gas_cost: number;
   service_fee: number;
 };
+
+export type gasBillInfo = {
+  id: number;
+  month: number;
+  year: number;
+  total_therms: number;
+  total_cost: number;
+};
+
+export type thermRow = {
+  id: number;
+  bill_id: number;
+  therms: number;
+  gas_cost: number;
+};

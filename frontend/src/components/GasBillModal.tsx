@@ -6,14 +6,14 @@ import {
   MenuItem,
   FormLabel,
   Button,
+  TextField,
 } from "@mui/material";
 import { useState } from "react";
 import { Months } from "../helperStuff";
-// import axios from "axios";
+import axios from "axios";
 import GasBillModalInputRow from "./GasBillModalInputRow";
-import { gasBill } from "../types";
+import { thermRow } from "../types";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-
 export default function GasBillModal({
   modalOpen,
   handleClose,
@@ -23,7 +23,10 @@ export default function GasBillModal({
 }) {
   const [month, setMonth] = useState(1);
   const [year, setYear] = useState(2025);
-  const [thermRows, setThermRows] = useState<gasBill[]>([]);
+  const [dist_cost, setDistCost] = useState(0);
+  const [adj_cost, setAdjCost] = useState(0);
+  const [service_fee, setServiceFee] = useState(0);
+  const [thermRows, setThermRows] = useState<thermRow[]>([]);
   const [idCounter, setIdCounter] = useState(0);
 
   const addThermRow = () => {
@@ -31,13 +34,9 @@ export default function GasBillModal({
       ...thermRows,
       {
         id: idCounter,
-        month,
-        year,
+        bill_id: 0,
         therms: 0,
-        dist_cost: 0,
-        adj_cost: 0,
         gas_cost: 0,
-        service_fee: 0,
       },
     ]);
 
@@ -45,32 +44,37 @@ export default function GasBillModal({
   };
 
   const removeThermRow = (rowId: number) => {
-    setThermRows(thermRows.filter((row: gasBill) => row.id !== rowId));
+    setThermRows(thermRows.filter((row: thermRow) => row.id !== rowId));
   };
 
-  const handleChange = (id: number, field: keyof gasBill, value: any) => {
+  const handleChange = (id: number, field: keyof thermRow, value: any) => {
     setThermRows(
       thermRows.map((row) => (row.id === id ? { ...row, [field]: value } : row))
     );
   };
 
   const onSubmit = async () => {
-    for (let i = 0; i < thermRows.length; i++) {
-      const gasData = {
-        month,
-        year,
-        therms: thermRows[i].therms,
-        dist_cost: thermRows[i].dist_cost,
-        adj_cost: thermRows[i].adj_cost,
-        gas_cost: thermRows[i].gas_cost,
-        service_fee: thermRows[i].service_fee,
-      };
+    // console.log(month, year, dist_cost, adj_cost, service_fee, thermRows);
+    // Create Bill
+    const response = await axios.post("http://localhost:8000/gas-bill", {
+      month,
+      year,
+      dist_cost,
+      adj_cost,
+      service_fee,
+    });
 
-      console.log(gasData);
-      // const response = await axios.post("http://localhost:8000/gas", gasData);
-      // console.log(response);
+    const billID = response.data;
+
+    for (let i = 0; i < thermRows.length; i++) {
+      const row = thermRows[i];
+      await axios.post("http://localhost:8000/gas-therm", {
+        bill_id: billID,
+        therms: row.therms,
+        gas_cost: row.gas_cost,
+      });
     }
-    //   handleClose();
+    handleClose();
   };
 
   return (
@@ -91,8 +95,8 @@ export default function GasBillModal({
             alignItems: "center",
           }}
         >
-          <Typography variant="h4">New Gas Bill</Typography>
-          {/* Month and Year */}
+          <Typography variant="h4">Gas Bill</Typography>
+          {/* Top Items */}
           <Box sx={{ display: "flex", gap: 2 }}>
             {/* Year */}
             <Box>
@@ -123,6 +127,36 @@ export default function GasBillModal({
                   </MenuItem>
                 ))}
               </Select>
+            </Box>
+            {/* Dist Cost */}
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <FormLabel sx={{ marginRight: "10px" }}>Dist Cost</FormLabel>
+              <TextField
+                type="number"
+                sx={{ width: "100px", marginLeft: "5px" }}
+                value={dist_cost}
+                onChange={(e) => setDistCost(Number(e.target.value))}
+              />
+            </Box>
+            {/* Adj Cost */}
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <FormLabel sx={{ marginRight: "10px" }}>Adj Cost Cost</FormLabel>
+              <TextField
+                type="number"
+                sx={{ width: "100px", marginLeft: "5px" }}
+                value={adj_cost}
+                onChange={(e) => setAdjCost(Number(e.target.value))}
+              />
+            </Box>
+            {/* Service Fee */}
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <FormLabel sx={{ marginRight: "10px" }}>Service Fee</FormLabel>
+              <TextField
+                type="number"
+                sx={{ width: "100px", marginLeft: "5px" }}
+                value={service_fee}
+                onChange={(e) => setServiceFee(Number(e.target.value))}
+              />
             </Box>
           </Box>
           <Box

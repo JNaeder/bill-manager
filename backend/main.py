@@ -1,7 +1,7 @@
 from cockroach_db import CockroachDB
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from my_types import GasBill
+from my_types import GasBill, GasTherm
 
 app = FastAPI()
 app.add_middleware(
@@ -21,10 +21,17 @@ async def test():
 
 @app.get("/gas")
 async def get_gas_info():
-    gas_info = db.get_gas_info()
-    return gas_info
+    return db.get_gas_info()
 
-@app.post("/gas")
-async def create_new_gas_info(gas_bill: GasBill):
-    db.create_gas_info(gas_bill)
-    return 201
+@app.get("/gas-list")
+async def get_gas_bill_list():
+    return db.get_gas_bill_list()
+
+@app.post("/gas-bill")
+async def create_new_gas_bill(gas_bill: GasBill):
+    bill_id = db.create_gas_bill(gas_bill)
+    return str(bill_id)
+
+@app.post("/gas-therm")
+async def create_new_gas_therm(gas_therm: GasTherm):
+    return db.create_gas_therm(gas_therm)

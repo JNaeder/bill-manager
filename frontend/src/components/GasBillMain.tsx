@@ -1,55 +1,65 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { gasBill } from "../types";
+import { gasBillInfo } from "../types";
 import { Months } from "../helperStuff";
 import { Box, Typography, Button } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import GasBillModal from "./GasBillModal";
 
 export default function GasBillMain() {
-  const [gasBillInfo, setGasBillInfo] = useState<gasBill[]>([]);
+  const [gasBillInfo, setGasBillInfo] = useState<gasBillInfo[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const handleOpen = () => setModalOpen(true);
   const handleClose = () => setModalOpen(false);
 
   useEffect(() => {
     const getGasBillInfo = async () => {
-      const response = await axios.get("http://localhost:8000/gas");
+      const response = await axios.get("http://localhost:8000/gas-list");
       setGasBillInfo(response.data);
     };
 
     getGasBillInfo();
   }, []);
 
-  const columns = [
-    { field: "year", headerName: "Year" },
+  const columns: GridColDef<gasBillInfo>[] = [
+    { field: "year", headerName: "Year", flex: 1 },
     {
       field: "month",
       headerName: "Month",
-      valueGetter: (_: any, row: gasBill) => {
+      flex: 1,
+      valueGetter: (_: any, row: gasBillInfo) => {
         return Months[row.month];
       },
     },
-    { field: "therms", headerName: "Therms" },
-    { field: "dist_cost", headerName: "Distribution Cost" },
-    { field: "adj_cost", headerName: "Adjustment Cost" },
-    { field: "gas_cost", headerName: "Gas Cost" },
-    { field: "service_fee", headerName: "Service Fee" },
     {
       field: "total_cost",
       headerName: "Total Cost",
-      width: 150,
-      valueGetter: (_: any, row: gasBill) => {
-        return `$${
-          Math.round(
-            (row.dist_cost * row.therms +
-              row.adj_cost * row.therms +
-              row.gas_cost * row.therms +
-              row.service_fee) *
-              100
-          ) / 100
-        }`;
+      flex: 1,
+      valueGetter: (_: any, row: gasBillInfo) => {
+        return `$${row.total_cost.toFixed(2)}`;
+      },
+    },
+    {
+      field: "total_therms",
+      headerName: "Total Therms",
+      flex: 1,
+      valueGetter: (_: any, row: gasBillInfo) => {
+        return row.total_therms.toFixed(2);
+      },
+    },
+    {
+      field: "view_bill",
+      headerName: "View Bill",
+      renderCell: (params) => {
+        return (
+          <Button
+            variant="contained"
+            onClick={() => console.log(params.row.id)}
+          >
+            View
+          </Button>
+        );
       },
     },
   ];
@@ -77,7 +87,13 @@ export default function GasBillMain() {
             <AddCircleOutlineIcon />
           </Button>
         </Box>
-        <DataGrid rows={gasBillInfo} columns={columns} />
+        <Box
+          sx={{
+            width: "100%",
+          }}
+        >
+          <DataGrid rows={gasBillInfo} columns={columns} />
+        </Box>
         <GasBillModal modalOpen={modalOpen} handleClose={handleClose} />
       </Box>
     </>
